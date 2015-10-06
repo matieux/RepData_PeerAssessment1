@@ -1,12 +1,8 @@
----
-title: "Reproducible Research: Peer Assessment 1"
-output: 
-  html_document:
-    keep_md: true
----
+# Reproducible Research: Peer Assessment 1
 
 ## Preparation of environment
-```{r preparation_environment, message = FALSE}
+
+```r
 library(dplyr)
 library(lattice)
 library(lubridate)
@@ -17,7 +13,8 @@ pal2 <- brewer.pal(9, "Set1")
 
 ## Loading and preprocessing the data
 
-```{r loading_preprocessing_data}
+
+```r
 options(scipen = 1, digits = 2)
 data <- read.csv("activity.csv")
 data1 <- data %>%
@@ -26,44 +23,56 @@ data1 <- data %>%
 hist(data1$totalSteps, main = "Total number of steps per day", 
 	 xlab = "Number of steps per day", col = pal1[2])
 ```
-```{r loading_preprocessing_data_png, results = "hide"}
+
+![](PA1_template_files/figure-html/loading_preprocessing_data-1.png) 
+
+```r
 dev.copy(png, "figure/plot1.png"); dev.off()
 ```
 
 
 ## What is mean total number of steps taken per day?
 
-```{r total_steps_day}
+
+```r
 meanSteps   <- mean(data1$totalSteps, na.rm = TRUE)
 medianSteps <- median(data1$totalSteps, na.rm = TRUE)
 ```
 
-The mean total number of steps taken per day is **`r meanSteps`**.
+The mean total number of steps taken per day is **10766.19**.
 
-The median total number of steps taken per day is **`r medianSteps`**.
+The median total number of steps taken per day is **10765**.
 
 ## What is the average daily activity pattern?
 
-```{r daily_activity_pattern}
+
+```r
 data2 <- data %>%
 	group_by(interval) %>%
 	summarise(meanSteps = mean(steps, na.rm = TRUE))
 with(data2, plot(interval, meanSteps, main = "Average daily activity pattern",
 	xlab = "5-minutes time interval", ylab = "Average number of steps per day",
 	col = pal2[2], type = "l", lwd = 2))
+```
+
+![](PA1_template_files/figure-html/daily_activity_pattern-1.png) 
+
+```r
 maxInterval <- data2[which.max(data2$meanSteps),1][[1]]
 maxMeanSteps <- data2[which.max(data2$meanSteps),2][[1]]
 ```
-```{r daily_activity_pattern_png, results = "hide"}
+
+```r
 dev.copy(png, "figure/plot2.png"); dev.off()
 ```
 
-The **`r maxInterval`** 5-minute interval contains the maximum number of steps
-(**`r maxMeanSteps`**), on average across all the days.
+The **835** 5-minute interval contains the maximum number of steps
+(**206.17**), on average across all the days.
 
 ## Imputing missing values
 
-```{r imputing_missing_values}
+
+```r
 missingValues <- sum(!complete.cases(data))
 # Extrapolate missing values from mean intervals
 extrapolatedInterval <- lapply(data$interval, function(x) {
@@ -81,24 +90,31 @@ data1 <- data %>%
 hist(data1$totalSteps, 
 	 main = "Total number of steps per day - No missing values", 
 	 xlab = "Number of steps per day", col = pal1[2])
+```
+
+![](PA1_template_files/figure-html/imputing_missing_values-1.png) 
+
+```r
 meanSteps   <- mean(data1$totalSteps, na.rm = TRUE)
 medianSteps <- median(data1$totalSteps, na.rm = TRUE)
 ```
-```{r imputing_missing_values_png, results = "hide"}
+
+```r
 dev.copy(png, "figure/plot3.png"); dev.off()
 ```
 
-There are **`r missingValues`** missing values in the data set. The strategy for
+There are **2304** missing values in the data set. The strategy for
 imputing missing data was to replace them by the mean for the corresponding
 intervals.
 
-The mean total number of steps taken per day is **`r meanSteps`**.
+The mean total number of steps taken per day is **10766.19**.
 
-The median total number of steps taken per day is **`r medianSteps`**.
+The median total number of steps taken per day is **10766.19**.
 
 ## Are there differences in activity patterns between weekdays and weekends?
 
-```{r weekday_pattern}
+
+```r
 data <- data %>%
 	mutate(day = ifelse(
 		wday(ymd(date)) == 7 | wday(ymd(date)) == 1, "weekend", "weekday")) %>%
@@ -111,6 +127,9 @@ xyplot(averageSteps ~ interval | day, data1, type = "l", layout = c(1,2),
 	   col = pal2[[2]], lwd = 2, 
 	   main = "Average number of steps taken\naveraged across all weekend or weekday days")
 ```
-```{r weekday_pattern_png, results = "hide"}
+
+![](PA1_template_files/figure-html/weekday_pattern-1.png) 
+
+```r
 dev.copy(png, "figure/plot4.png"); dev.off()
 ```
